@@ -7,5 +7,5 @@ To-Do:
 - Metric version
 - Formatting (Headers, horizontal lines?)
 - Rounding in summary tables
-- Possibly look at splitting by year + grouping my month
+- Possibly look at splitting by year + grouping by month
 - (Python)
