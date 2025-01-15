@@ -1,0 +1,11 @@
+total stats:
+- distance, time, number of runs
+
+summaries:
+- per year: distance, time, number of runs, number of each type of activity
+- per month: distance, time, number of runs (nah)
+
+graphs:
+- histogram of run distances
+- bar graph of runs each month
+- pi chart of each distance class (0-1 miles, 1-2 miles, etc.)
