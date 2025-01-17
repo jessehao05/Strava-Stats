@@ -21,14 +21,6 @@ df_clean <- df_raw |>
 print(df_clean)
 
 # Total Statistics:
-run_histogram <- df_clean |>
-  ggplot(aes(x = distance)) + 
-  geom_histogram(color = "black", fill = "lightblue",binwidth = 1) + 
-  labs(x = "Distance (miles)",
-       y = "Number of runs",
-       title = "Number of runs at each distance")
-print(run_histogram)
-
 total_summary <- df_clean |>
   summarize(
     total_activities = n(),
@@ -38,6 +30,28 @@ total_summary <- df_clean |>
   mutate(total_hours = total_hours / 60)
 
 print(total_summary)
+
+# Run histogram:
+run_histogram <- df_clean |>
+  ggplot(aes(x = distance)) + 
+  geom_histogram(color = "black", fill = "lightblue",binwidth = 1) + 
+  labs(x = "Distance (miles)",
+       y = "Number of runs",
+       title = "Number of runs at each distance")
+
+print(run_histogram)
+
+# Pace histogram:
+pace_histogram <- df_clean |>
+  ggplot(aes(x = pace)) + 
+  geom_histogram(color = "black", fill = "lightblue", binwidth = 1) +
+  labs(x = "Pace (min/mile)",
+       y = "Number of runs",
+       title = "Pace distribution") +
+  scale_x_continuous(breaks = seq(floor(min(df_clean$pace)), 
+                                  ceiling(max(df_clean$pace)), by = 1))
+
+print(pace_histogram)
 
 # Adding month and year columns
 df_dates <- df_clean |>
