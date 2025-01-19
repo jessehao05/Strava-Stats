@@ -1,7 +1,7 @@
 ---
 title: "Strava Statistics"
 author: Jesse Hao
-date: "Last updated: 2025-01-14"
+date: "Last updated: 2025-01-16"
 output:
   pdf_document:
     highlight: tango
@@ -14,7 +14,7 @@ fontsize: 10pt
 ```{r}
 library("tidyverse")
 
-df_raw <- read_csv("activities_12_28_2024.csv")
+df_raw <- read_csv("activities_12_28_2024.csv") # your file here
 df_clean <- df_raw |> 
   select(date = "Activity Date",
          name = "Activity Name",
@@ -81,7 +81,7 @@ df_dates <- df_clean |>
       grepl(2021, date) ~ 2021,
       grepl(2022, date) ~ 2022,
       grepl(2023, date) ~ 2023,
-      grepl(2024, date) ~ 2024),
+      grepl(2024, date) ~ 2024), # add/change years as necessary
     month = case_when(
       grepl("Jan", date) ~ "Jan",
       grepl("Feb", date) ~ "Feb",
