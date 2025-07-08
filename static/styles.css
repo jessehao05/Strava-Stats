@@ -1,0 +1,88 @@
+body {
+    /* background: hsl(222, 73%, 85%); */
+    background-color: white;
+    font-family: "Inter", sans-serif;
+    text-align: center;
+    
+}
+
+.header {
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+
+.container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+input {
+    display: none;
+}
+
+label#file-upload {
+    width: 375px;
+    display: flex;
+    padding: 5rem 0 5rem 0;
+    justify-content: center;
+    flex-direction: column;
+    font-size: 2rem;
+
+    border-radius: 40px;
+    border: 3px dashed black;
+}
+
+#file-name {
+    margin-top: 1rem;
+    font-size: 1rem;
+}
+
+label#file-upload:hover {
+    /* color: #212987;
+    border: 3px dashed #212987; */
+    color: #cfa423;
+    border: 3px dashed #cfa423;
+}
+
+.submit-button {
+    margin: 2rem 0 4rem 0;
+    padding: 0.4rem 0 0.4rem 0;
+    font-size: 1rem;
+    background-color: #E0E5F8;
+    border: none;
+    width: 175px;
+    border-radius: 15px;
+}
+
+.submit-button:hover {
+    background-color: #cbd4f6;
+}
+
+.links-container a {
+    color: #09348F;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #5171b5;
+}
+
+.example-link {
+    margin-bottom: 1rem;
+}
+
+.dataframe {
+    border-collapse: collapse;
+}
+
+.table1 {
+    margin: 2rem;
+}
+
+table tr:nth-child(n + 6) {
+    display: none;
+}

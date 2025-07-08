@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+    <title>Document</title>
+</head>
+<body>
+
+    <form action="/process" method="POST" enctype="multipart/form-data">
+       <div class="container">
+            <div class="header">Strava Statistics</div>
+
+            <input type="file" id="fileUpload" name="file" accept=".csv" required>
+            <label id="file-upload" for="fileUpload">Upload .csv File<div id="file-name">No file selected</div></label>
+
+            <input type="submit" id="submit" class="submit-button">
+            <label for="submit" class="submit-button">Submit</label>
+
+            <div class="links-container">
+                <div class="example-link"><a href="{{ url_for('example_page') }}">Example Data</a></div>
+                <div class="instr-link"><a href="{{ url_for('instructions_page') }}">Unsure how to download your Strava data?</a></div>
+            </div>
+        </div>
+    </form>
+
+    
+</body>
+
+<script>
+const fileInput = document.querySelector('#fileUpload');
+const fileName = document.querySelector('#file-name');
+
+fileInput.addEventListener('change', () => {
+    fileName.innerHTML = fileInput.files.length > 0 ? 'Currently selected: <br><span style="color: #3951C9">' + fileInput.files[0].name + '</span>': 'No file chosen';
+});
+
+</script>
+</html>
