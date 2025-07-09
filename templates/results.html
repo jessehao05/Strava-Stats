@@ -28,23 +28,18 @@
 
     <div class="table-container table-total">
         <div class="table-header" id="table-total">Overall Statistics</div>
-        {{ cleaned_table | safe }}
+        {{ total_summary | safe }}
     </div>
 
     <div class="table-container table-yearly">
         <div class="table-header" id="table-yearly">Statistics by Year</div>
-        {{ total_summary | safe}}
+        {{ annual_summary | safe}}
     </div>
     
-    <div class="graph">
-        {{distance_hist|safe}}
-    </div>
-    <div class="graph">
-        {{pace_distrib|safe}}
-    </div>
-    <div class="graph">
-        {{month _distrib|safe}}
-    </div>
+    <div class="graph" id="hist-dist">{{distance_hist|safe}}</div>
+    <div class="graph" id="hist-pace">{{pace_distrib|safe}}</div>
+    <div class="graph" id="bar-num-runs">{{month_distrib|safe}}</div>
+    <div class="graph" id="pie-dist">{{pie|safe}}</div>
     
 </body>
 </html>

@@ -1,8 +1,6 @@
 from flask import Flask, request, render_template, redirect, url_for
 import pandas as pd
-import matplotlib.pyplot as plt
 import plotly.express as px
-
 import os
 
 app = Flask(__name__)
@@ -77,11 +75,23 @@ def process_file():
     total_summary['Activities'] = len(df_runs) # adding activities column as the total number of rows
     total_summary = total_summary[['Activities','Distance','Moving Time','Elevation Gain']] # rearrange columns
     total_summary['Moving Time'] = total_summary['Moving Time'] / 60
+    total_summary = total_summary.round(2)
 
     total_summary_html = total_summary.to_html(classes='stats-table', index = False)
 
     # 3. by year table
-
+    yearly_summary = df_dates.groupby('Year').agg({
+        'Distance': 'sum',
+        'Moving Time': 'sum',
+        'Elevation Gain': 'sum'
+    })
+    yearly_summary['Activities'] = df_dates.groupby('Year').size()
+    yearly_summary = yearly_summary[['Activities', 'Distance', 'Moving Time', 'Elevation Gain']]
+    yearly_summary['Moving Time'] = yearly_summary['Moving Time'] / 60
+    yearly_summary = yearly_summary.reset_index()
+    yearly_summary = yearly_summary.round(2)
+    
+    yearly_summary_html = yearly_summary.to_html(classes='stats-table', index = False)
 
     
     # 4. distance histogram
@@ -103,17 +113,35 @@ def process_file():
     # month_hist.update_traces(marker_color='lightblue', marker_line_color='black', marker_line_width=1)
     month_hist_html = month_hist.to_html(full_html=False)
 
-    # send data to jinja2/flask
-    # q: can you add classes/ID's to html tables you pass to jinja? (for styling)
+    # 7. distance pie chart
+    df_dates['Distance Bracket'] = df_dates['Distance'].apply(
+        lambda x: '<2' if x < 2 else
+                '2-4' if x <= 4 else 
+                '4-6' if x <= 6 else
+                '6-8' if x <= 8 else
+                '>8'
+    )   
+    bracket_counts = df_dates['Distance Bracket'].value_counts().sort_index()
+
+    dist_pie = px.pie(
+        names = bracket_counts.index,
+        values = bracket_counts.values,
+        title = 'Run Counts by Distance Bracket (miles)'
+    )
+
+    dist_pie_html = dist_pie.to_html(full_html = False)
 
     # end: delete file from local
+    os.remove(filepath)
+
+    # send data to jinja2/flask
     return render_template('results.html', 
-                           cleaned_table = cleaned_table_html, 
                            total_summary = total_summary_html, 
+                           annual_summary = yearly_summary_html,
                            distance_hist = dist_hist_html,
                            pace_distrib = pace_hist_html,
-                           month_distrib = month_hist_html)
-
+                           month_distrib = month_hist_html,
+                           pie = dist_pie_html)
 
 if __name__ == '__main__':
     os.makedirs(UPLOAD_FOLDER, exist_ok = True)

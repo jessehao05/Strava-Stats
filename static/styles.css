@@ -110,7 +110,7 @@ ul {
     font-size: 1rem;
     border: none;
     border-spacing: 0;
-    max-width: 500px;
+    /* max-width: 600px; */
 }
 
 .stats-table thead tr {
