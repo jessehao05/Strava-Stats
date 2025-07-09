@@ -6,6 +6,8 @@ import os
 app = Flask(__name__)
 UPLOAD_FOLDER = 'uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+month_arr = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
 
 @app.route('/')
 def upload_page():
@@ -33,11 +35,46 @@ def process_file():
 
     df = pd.read_csv(filepath)
 
-    summary = df.describe().to_html(classes='data')
-
-    # pandas/matplot processing
-    
     # 1. cleaning
+    df_clean = clean_data(df, month_arr)
+
+    # 2. summary table
+    total_summary = generate_summary_table(df_clean)
+    total_summary_html = total_summary.to_html(classes='stats-table', index = False)
+
+    # 3. by year table
+    yearly_summary = generate_yearly_summary(df_clean)
+    yearly_summary_html = yearly_summary.to_html(classes='stats-table', index = False)
+
+    # 4. distance histogram
+    dist_hist = generate_distance_histogram(df_clean)
+    dist_hist_html = dist_hist.to_html(full_html=False)
+
+    # 5. pace histogram
+    pace_hist = generate_pace_histogram(df_clean)
+    pace_hist_html = pace_hist.to_html(full_html=False)
+
+    # 6. monthly run distribution
+    month_hist = generate_monthly_distrib(df_clean, month_arr)
+    month_hist_html = month_hist.to_html(full_html=False)
+
+    # 7. distance pie chart
+    dist_pie = generate_pie(df_clean)
+    dist_pie_html = dist_pie.to_html(full_html = False)
+
+    # end: delete file from local
+    os.remove(filepath)
+
+    # send data to jinja2/flask
+    return render_template('results.html', 
+                           total_summary = total_summary_html, 
+                           annual_summary = yearly_summary_html,
+                           distance_hist = dist_hist_html,
+                           pace_distrib = pace_hist_html,
+                           month_distrib = month_hist_html,
+                           pie = dist_pie_html)
+
+def clean_data(df, month_arr):
     df_runs = df[['Activity Date','Activity Name','Activity Type','Activity Description',
                   'Elapsed Time','Moving Time','Distance','Elevation Gain','Elevation Loss']]
     df_runs = df_runs.rename(columns = {'Activity Date':'Date', 'Activity Name':'Name',
@@ -47,8 +84,6 @@ def process_file():
     df_runs['Moving Time'] = df_runs['Moving Time'] / 60
     df_runs['Pace'] = df_runs['Moving Time'] / df_runs['Distance']
     df_dates = df_runs.copy()
-
-    month_arr = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
     df_dates['Year'] = df_dates['Date'].apply(
         lambda x: 2021 if '2021' in x else
@@ -68,60 +103,66 @@ def process_file():
     cols = ['Date', 'Year', 'Month'] + [col for col in df_dates.columns if col not in ['Date', 'Year', 'Month']]
     df_dates = df_dates[cols]
 
-    cleaned_table_html = df_dates.to_html(classes='stats-table', index=False)
+    return df_dates
 
-    # 2. summary table
-    total_summary = df_runs[['Distance','Moving Time','Elevation Gain']].agg(['sum']) # summing columns, TO-DO: ignore N/A values in elevation
-    total_summary['Activities'] = len(df_runs) # adding activities column as the total number of rows
+def generate_summary_table(df):
+    total_summary = df[['Distance','Moving Time','Elevation Gain']].agg(['sum']) # summing columns, TO-DO: ignore N/A values in elevation
+    total_summary['Activities'] = len(df) # adding activities column as the total number of rows
     total_summary = total_summary[['Activities','Distance','Moving Time','Elevation Gain']] # rearrange columns
     total_summary['Moving Time'] = total_summary['Moving Time'] / 60
     total_summary = total_summary.round(2)
 
-    total_summary_html = total_summary.to_html(classes='stats-table', index = False)
+    return total_summary
 
-    # 3. by year table
-    yearly_summary = df_dates.groupby('Year').agg({
+def generate_yearly_summary(df):
+    yearly_summary = df.groupby('Year').agg({
         'Distance': 'sum',
         'Moving Time': 'sum',
         'Elevation Gain': 'sum'
     })
-    yearly_summary['Activities'] = df_dates.groupby('Year').size()
+    yearly_summary['Activities'] = df.groupby('Year').size()
     yearly_summary = yearly_summary[['Activities', 'Distance', 'Moving Time', 'Elevation Gain']]
     yearly_summary['Moving Time'] = yearly_summary['Moving Time'] / 60
     yearly_summary = yearly_summary.reset_index()
     yearly_summary = yearly_summary.round(2)
     
-    yearly_summary_html = yearly_summary.to_html(classes='stats-table', index = False)
+    return yearly_summary
 
+def generate_distance_histogram(df):
+    dist_hist = px.histogram(df, x="Distance", title="Number of Runs at Each Distance")
+
+    return dist_hist
+
+def generate_pace_histogram(df):
+    pace_hist = px.histogram(df, x = "Pace", title= "Number of Runs at Each Pace")
     
-    # 4. distance histogram
-    dist_hist = px.histogram(df_dates, x="Distance", title="Number of Runs at Each Distance")
-    dist_hist_html = dist_hist.to_html(full_html=False)
 
-    # 5. pace histogram
-    pace_hist = px.histogram(df_dates, x="Pace", title="Number of Runs at Each Pace")
-    pace_hist_html = pace_hist.to_html(full_html=False)
+    return pace_hist
 
-    # 6. monthly run distribution
-    month_hist = px.histogram(
-        df_dates,
-        x='Month',
-        nbins=12,
-        labels={'Month': 'Month', 'count': 'Number of runs'},
-        title='Number of runs each month across all years'
-    )
-    # month_hist.update_traces(marker_color='lightblue', marker_line_color='black', marker_line_width=1)
-    month_hist_html = month_hist.to_html(full_html=False)
+def generate_monthly_distrib(df, month_arr):
 
-    # 7. distance pie chart
-    df_dates['Distance Bracket'] = df_dates['Distance'].apply(
+    df['Month'] = pd.Categorical(df['Month'], categories = month_arr, ordered = True)
+
+    month_hist = px.histogram(df,
+        x = 'Month',
+        nbins = 12,
+        labels = {'Month': 'Month', 'count': 'Number of runs'},
+        title = 'Number of runs each month across all years')
+    
+    month_hist.update_traces(marker_line_width = 1, marker_line_color = 'white')
+    month_hist.update_xaxes(categoryorder = 'array', categoryarray = month_arr)
+
+    return month_hist
+
+def generate_pie(df):
+    df['Distance Bracket'] = df['Distance'].apply(
         lambda x: '<2' if x < 2 else
                 '2-4' if x <= 4 else 
                 '4-6' if x <= 6 else
                 '6-8' if x <= 8 else
                 '>8'
     )   
-    bracket_counts = df_dates['Distance Bracket'].value_counts().sort_index()
+    bracket_counts = df['Distance Bracket'].value_counts().sort_index()
 
     dist_pie = px.pie(
         names = bracket_counts.index,
@@ -129,19 +170,7 @@ def process_file():
         title = 'Run Counts by Distance Bracket (miles)'
     )
 
-    dist_pie_html = dist_pie.to_html(full_html = False)
-
-    # end: delete file from local
-    os.remove(filepath)
-
-    # send data to jinja2/flask
-    return render_template('results.html', 
-                           total_summary = total_summary_html, 
-                           annual_summary = yearly_summary_html,
-                           distance_hist = dist_hist_html,
-                           pace_distrib = pace_hist_html,
-                           month_distrib = month_hist_html,
-                           pie = dist_pie_html)
+    return dist_pie
 
 if __name__ == '__main__':
     os.makedirs(UPLOAD_FOLDER, exist_ok = True)
