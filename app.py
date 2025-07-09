@@ -1,6 +1,7 @@
 from flask import Flask, request, render_template, redirect, url_for
 import pandas as pd
 import matplotlib.pyplot as plt
+import plotly.express as px
 
 import os
 
@@ -43,8 +44,33 @@ def process_file():
                   'Elapsed Time','Moving Time','Distance','Elevation Gain','Elevation Loss']]
     df_runs = df_runs.rename(columns = {'Activity Date':'Date', 'Activity Name':'Name',
                                     'Activity Type':'Type','Activity Description':'Description'})
-    
-    cleaned_table_html = df_runs.to_html(classes='data', index=False)
+    df_runs['Distance'] = df_runs['Distance'] * 0.621
+    df_runs['Elapsed Time'] = df_runs['Elapsed Time'] / 60
+    df_runs['Moving Time'] = df_runs['Moving Time'] / 60
+    df_runs['Pace'] = df_runs['Moving Time'] / df_runs['Distance']
+    df_dates = df_runs.copy()
+
+    month_arr = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+    df_dates['Year'] = df_dates['Date'].apply(
+        lambda x: 2021 if '2021' in x else
+            2022 if '2022' in x else
+            2023 if '2023' in x else
+            2024 if '2024' in x else None
+    )
+
+    def find_month(x):
+        for month in month_arr:
+            if month in x:
+                return month
+        return None
+
+    df_dates['Month'] = df_dates['Date'].apply(find_month)
+
+    cols = ['Date', 'Year', 'Month'] + [col for col in df_dates.columns if col not in ['Date', 'Year', 'Month']]
+    df_dates = df_dates[cols]
+
+    cleaned_table_html = df_dates.to_html(classes='stats-table', index=False)
 
     # 2. summary table
     total_summary = df_runs[['Distance','Moving Time','Elevation Gain']].agg(['sum']) # summing columns, TO-DO: ignore N/A values in elevation
@@ -52,27 +78,41 @@ def process_file():
     total_summary = total_summary[['Activities','Distance','Moving Time','Elevation Gain']] # rearrange columns
     total_summary['Moving Time'] = total_summary['Moving Time'] / 60
 
-    total_summary_html = total_summary.to_html(index = False)
+    total_summary_html = total_summary.to_html(classes='stats-table', index = False)
+
+    # 3. by year table
+
 
     
-    # 3. distance histogram
-    dist_hist, dist_hist_ax = plt.subplots()
+    # 4. distance histogram
+    dist_hist = px.histogram(df_dates, x="Distance", title="Number of Runs at Each Distance")
+    dist_hist_html = dist_hist.to_html(full_html=False)
 
-    dist_hist_ax.hist(df_runs['Distance'], 
-            bins = range(int(df_runs['Distance'].min()), int(df_runs['Distance'].max()) + 2), 
-            color = 'lightblue', 
-            edgecolor = 'black')
+    # 5. pace histogram
+    pace_hist = px.histogram(df_dates, x="Pace", title="Number of Runs at Each Pace")
+    pace_hist_html = pace_hist.to_html(full_html=False)
 
-    dist_hist_ax.set_xlabel('Distance (miles)')
-    dist_hist_ax.set_ylabel('Number of runs')
-    dist_hist_ax.set_title('Number of runs at each distance')
-
-    img_path = os.path.join('static', 'dist_hist.png')
-    dist_hist.savefig(img_path)
+    # 6. monthly run distribution
+    month_hist = px.histogram(
+        df_dates,
+        x='Month',
+        nbins=12,
+        labels={'Month': 'Month', 'count': 'Number of runs'},
+        title='Number of runs each month across all years'
+    )
+    # month_hist.update_traces(marker_color='lightblue', marker_line_color='black', marker_line_width=1)
+    month_hist_html = month_hist.to_html(full_html=False)
 
     # send data to jinja2/flask
     # q: can you add classes/ID's to html tables you pass to jinja? (for styling)
-    return render_template('results.html', cleaned_table = cleaned_table_html, total_summary = total_summary_html, hist_path = img_path)
+
+    # end: delete file from local
+    return render_template('results.html', 
+                           cleaned_table = cleaned_table_html, 
+                           total_summary = total_summary_html, 
+                           distance_hist = dist_hist_html,
+                           pace_distrib = pace_hist_html,
+                           month_distrib = month_hist_html)
 
 
 if __name__ == '__main__':

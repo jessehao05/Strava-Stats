@@ -9,9 +9,42 @@
     <title>Document</title>
 </head>
 <body>
-    <h2>Results</h2>
-    <div class="table1">{{cleaned_table|safe}}</div>
-    {{total_summary | safe}}
-    <img src="{{url_for('static', filename = 'dist_hist.png')}}">
+    <div class="back-button">
+        <a href="{{ url_for('upload_page') }}">BACK</a>
+    </div>
+
+    <div class="TOC">
+        <div class="TOC-header">Table of Contents</div>
+        <ul class="TOC-list">
+            <li><a href="#table-total">Overall Statistics</a></li>
+            <li><a href="#table-yearly">Statistics by Year</a></li>
+            <li><a href="#hist-dist">Distance Distribution</a></li>
+            <li><a href="#hist-pace">Pace Distribution</a></li>
+            <li><a href="#bar-num-runs">Monthly Run Distribution</a></li>
+            <li><a href="#pie-dist">Distance Class Distribution</a></li>
+        </ul>
+    </div>
+
+
+    <div class="table-container table-total">
+        <div class="table-header" id="table-total">Overall Statistics</div>
+        {{ cleaned_table | safe }}
+    </div>
+
+    <div class="table-container table-yearly">
+        <div class="table-header" id="table-yearly">Statistics by Year</div>
+        {{ total_summary | safe}}
+    </div>
+    
+    <div class="graph">
+        {{distance_hist|safe}}
+    </div>
+    <div class="graph">
+        {{pace_distrib|safe}}
+    </div>
+    <div class="graph">
+        {{month _distrib|safe}}
+    </div>
+    
 </body>
 </html>

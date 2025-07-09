@@ -3,7 +3,10 @@ body {
     background-color: white;
     font-family: "Inter", sans-serif;
     text-align: center;
-    
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
 }
 
 .header {
@@ -62,7 +65,7 @@ label#file-upload:hover {
     background-color: #cbd4f6;
 }
 
-.links-container a {
+a {
     color: #09348F;
     text-decoration: none;
 }
@@ -75,12 +78,60 @@ a:hover {
     margin-bottom: 1rem;
 }
 
-.dataframe {
-    border-collapse: collapse;
+/* RESULTS PAGE */ 
+
+.back-button {
+    margin: 2rem 0 2rem 0;
 }
 
-.table1 {
-    margin: 2rem;
+.TOC {
+    font-size: 0.75rem;
+    line-height: 1.5;
+    margin-bottom: 2rem;
+}
+
+.TOC-header {
+    font-weight: bold;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.table-container {
+    margin-bottom: 2rem;
+}
+
+.stats-table {
+    border-collapse: collapse;
+    margin: 0.5rem 0;
+    font-size: 1rem;
+    border: none;
+    border-spacing: 0;
+    max-width: 500px;
+}
+
+.stats-table thead tr {
+    background-color: #929DFF;
+    text-align: left !important;
+    color: #ffffff;
+    font-weight: normal;
+}
+
+.stats-table th,
+.stats-table td {
+    padding: 12px 15px;
+    font-weight: normal;
+}
+
+.stats-table tbody tr {
+    border-bottom: 1px solid #dddddd;
+}
+
+.stats-table tbody tr:nth-of-type(even) {
+    background-color: #f3f3f3;
 }
 
 table tr:nth-child(n + 6) {
