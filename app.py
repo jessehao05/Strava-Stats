@@ -23,6 +23,9 @@ def instructions_page():
 
 @app.route('/process', methods = ['POST'])
 def process_file():
+
+    # verify_file(request)
+
     if 'file' not in request.files:
         return 'No file part'
 
@@ -79,10 +82,11 @@ def clean_data(df, month_arr):
                   'Elapsed Time','Moving Time','Distance','Elevation Gain','Elevation Loss']]
     df_runs = df_runs.rename(columns = {'Activity Date':'Date', 'Activity Name':'Name',
                                     'Activity Type':'Type','Activity Description':'Description'})
-    df_runs['Distance'] = df_runs['Distance'] * 0.621
-    df_runs['Elapsed Time'] = df_runs['Elapsed Time'] / 60
-    df_runs['Moving Time'] = df_runs['Moving Time'] / 60
-    df_runs['Pace'] = df_runs['Moving Time'] / df_runs['Distance']
+    df_runs['Distance'] = df_runs['Distance'] * 0.621 # km -> mi
+    df_runs['Elapsed Time'] = df_runs['Elapsed Time'] / 60 # s -> min
+    df_runs['Moving Time'] = df_runs['Moving Time'] / 60 # s -> min
+    df_runs['Pace'] = df_runs['Moving Time'] / df_runs['Distance'] # min/mi
+    df_runs['Elevation Gain'] = df_runs['Elevation Gain'] * 3.28 # m -> ft
     df_dates = df_runs.copy()
 
     df_dates['Year'] = df_dates['Date'].apply(
@@ -111,6 +115,7 @@ def generate_summary_table(df):
     total_summary = total_summary[['Activities','Distance','Moving Time','Elevation Gain']] # rearrange columns
     total_summary['Moving Time'] = total_summary['Moving Time'] / 60
     total_summary = total_summary.round(2)
+    total_summary = total_summary.rename(columns = {'Distance': 'Distance (mi)', 'Moving Time': 'Moving Time (hr)', 'Elevation Gain': 'Elevation Gain (ft)'})
 
     return total_summary
 
@@ -125,18 +130,29 @@ def generate_yearly_summary(df):
     yearly_summary['Moving Time'] = yearly_summary['Moving Time'] / 60
     yearly_summary = yearly_summary.reset_index()
     yearly_summary = yearly_summary.round(2)
+    yearly_summary = yearly_summary.rename(columns = {'Distance': 'Distance (mi)', 'Moving Time': 'Moving Time (hr)', 'Elevation Gain': 'Elevation Gain (ft)'})
     
     return yearly_summary
 
 def generate_distance_histogram(df):
-    dist_hist = px.histogram(df, x="Distance", title="Number of Runs at Each Distance")
+    dist_hist = px.histogram(df, 
+        x = "Distance", 
+        title = "Number of Runs at Each Distance", 
+        nbins = 12, 
+        template = 'seaborn',
+        labels = {'Distance': 'Distance (miles)', 'count' : 'Number of runs'})
+    dist_hist.update_traces(marker_line_width = 1, marker_line_color = 'white')
 
     return dist_hist
 
 def generate_pace_histogram(df):
-    pace_hist = px.histogram(df, x = "Pace", title= "Number of Runs at Each Pace")
-    
-
+    pace_hist = px.histogram(df, 
+        x = "Pace", 
+        title = "Number of Runs at Each Pace", 
+        template = "seaborn",
+        labels = {'Pace': 'Pace (min/mile)'})
+    pace_hist.update_traces(marker_line_width = 1, marker_line_color = 'white')
+        
     return pace_hist
 
 def generate_monthly_distrib(df, month_arr):
@@ -147,7 +163,8 @@ def generate_monthly_distrib(df, month_arr):
         x = 'Month',
         nbins = 12,
         labels = {'Month': 'Month', 'count': 'Number of runs'},
-        title = 'Number of runs each month across all years')
+        title = 'Number of Runs by Month',
+        template = 'seaborn')
     
     month_hist.update_traces(marker_line_width = 1, marker_line_color = 'white')
     month_hist.update_xaxes(categoryorder = 'array', categoryarray = month_arr)
@@ -167,8 +184,10 @@ def generate_pie(df):
     dist_pie = px.pie(
         names = bracket_counts.index,
         values = bracket_counts.values,
-        title = 'Run Counts by Distance Bracket (miles)'
+        title = 'Mileage Distribution',
+        template = 'seaborn'
     )
+    dist_pie.update_traces(legendgrouptitle_text = 'Distance Bracket (miles)')
 
     return dist_pie
 
