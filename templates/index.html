@@ -9,23 +9,31 @@
     <title>Document</title>
 </head>
 <body>
+    <div class="container">
+        <div class="header">Strava Statistics</div>
+        <div class="instr"><br>Upload your Strava archive data (.csv) for an analysis of your activities!</div>
 
-    <form action="/process" method="POST" enctype="multipart/form-data">
-       <div class="container">
-            <div class="header">Strava Statistics</div>
-
+        <form action="/process" method="POST" enctype="multipart/form-data">
             <input type="file" id="fileUpload" name="file" accept=".csv" required>
             <label id="file-upload" for="fileUpload">Upload .csv File<div id="file-name">No file selected</div></label>
 
-            <input type="submit" id="submit" class="submit-button">
+            <input type="submit" id="submit" value="upload" name="action">
             <label for="submit" class="submit-button">Submit</label>
+        </form>
+        <form action="/process" method="POST">
+            <input type="submit" id="default" value="default" name="action">
+            <label for="default" class="default-button">Example</label>
+        </form>
 
-            <div class="links-container">
-                <div class="example-link"><a href="{{ url_for('example_page') }}">Example Data</a></div>
-                <div class="instr-link"><a href="{{ url_for('instructions_page') }}">Unsure how to download your Strava data?</a></div>
-            </div>
+        <div class="bottom-container">
+            <div class="FAQ-link"><a href="{{ url_for('FAQ_page') }}">FAQ</a></div>
         </div>
-    </form>
+
+        
+
+        
+    
+    </div>
 
     
 </body>

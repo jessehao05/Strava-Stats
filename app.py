@@ -13,28 +13,34 @@ month_arr = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct
 def upload_page():
     return render_template('index.html')
 
-@app.route('/example')
-def example_page():
-    return render_template('example.html')
-
-@app.route('/instructions')
-def instructions_page():
-    return render_template('instructions.html')
+@app.route('/FAQ')
+def FAQ_page():
+    return render_template('FAQ.html')
 
 @app.route('/process', methods = ['POST'])
 def process_file():
 
-    # verify_file(request)
+    action = request.form.get('action')
 
-    if 'file' not in request.files:
-        return 'No file part'
+    if action == 'default':
+        filepath = 'static/example.csv'
+        print('default form')
+    elif action == 'upload': 
+        print('upload path')
+        # verify_file(request)
+        if 'file' not in request.files:
+            return 'No file part'
 
-    file = request.files['file']
-    if file.filename == '':
-        return 'No selected file'
+        file = request.files['file']
+        if file.filename == '':
+            return 'No selected file'
 
-    filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
-    file.save(filepath)
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename) # q: must i save this? or can i just use the file?
+        file.save(filepath)
+    else:
+        return 'Something went wrong.'
+    
+    print(filepath)
 
     df = pd.read_csv(filepath)
 

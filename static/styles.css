@@ -11,9 +11,14 @@ body {
 
 .header {
     font-size: 1.5rem;
-    margin-bottom: 2rem;
+    margin: 0;
+    font-weight: 500;
 }
 
+.instr {
+    margin-bottom: 2.5rem;
+    font-size: 0.9rem;
+}
 
 .container {
     height: 100vh;
@@ -37,6 +42,7 @@ label#file-upload {
 
     border-radius: 40px;
     border: 3px dashed black;
+    margin-bottom: 1.5rem;
 }
 
 #file-name {
@@ -49,20 +55,38 @@ label#file-upload:hover {
     border: 3px dashed #212987; */
     color: #cfa423;
     border: 3px dashed #cfa423;
+    cursor: pointer;
 }
 
 .submit-button {
-    margin: 2rem 0 4rem 0;
-    padding: 0.4rem 0 0.4rem 0;
+    display: inline-block;
+    width: 150px;
+    margin: 1rem 0 0.5rem 0;
+    padding: 0.4rem 1.7rem 0.4rem 1.7rem;
     font-size: 1rem;
     background-color: #E0E5F8;
     border: none;
-    width: 175px;
+
     border-radius: 15px;
+}
+
+.default-button {
+    font-size: 0.8rem;
+    color: #09348F
+}
+
+.default-button:hover {
+    color: #5171b5;
+    cursor: pointer;
 }
 
 .submit-button:hover {
     background-color: #cbd4f6;
+    cursor: pointer;
+}
+
+.default {
+    margin: 0 0 2rem 0;
 }
 
 a {
@@ -74,8 +98,10 @@ a:hover {
     color: #5171b5;
 }
 
-.example-link {
-    margin-bottom: 1rem;
+.bottom-container {
+    padding: 0 20rem 0 20rem;
+    margin-top: 3.5rem;
+    font-size: 1rem;
 }
 
 /* RESULTS PAGE */ 
@@ -136,4 +162,47 @@ ul {
 
 table tr:nth-child(n + 6) {
     display: none;
+}
+
+/* FAQ PAGE */
+.faq-title {
+    font-size: 1.75rem;
+    font-weight: bold;
+    margin-bottom: 2rem;
+}
+
+.faq {
+    text-align: left;
+    border-bottom: 2px solid #dfdfdf;
+    max-width: 700px;
+    /* cursor: pointer; */
+}
+
+.question {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.25rem;
+    font-weight: 500;
+    margin: 1.5rem 0;
+}
+
+.answer p {
+    line-height: 1.5;
+    font-size: 0.9rem;
+    margin-top: 0;
+}
+
+.answer {
+    max-height: 0;
+    overflow: hidden;
+}
+
+.faq.active .answer {
+    max-height: 300px;
+    overflow: hidden;
+}
+
+.faq.active svg {
+    transform: rotate(180deg);
 }

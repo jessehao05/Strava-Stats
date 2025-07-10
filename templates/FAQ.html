@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+
+    <title>FAQ</title>
+</head>
+<body>
+    <div class="back-button">
+        <a href="{{ url_for('upload_page') }}">BACK</a>
+    </div>
+
+    <div class="faq-section">
+        <div class="faq-title">FAQs</div>
+        
+        <div class="faq">
+            <div class="question">
+                <span>How do I download my Strava archive data?</span>
+
+                <svg width="15" height="10" viewBox="0 0 42 25">
+                    <path d="M3 3L21 21L39 3" stroke="white" stroke-width="7" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <div class="answer">
+                <p>
+                    While logged in on the <a href="http://www.strava.com/" target="_blank">Strava Website</a>, hover over 
+                    your profile picture --> <strong>Settings</strong> --> <strong>My Account</strong>. 
+                    At the bottom of the page, find the section "Download or Delete Your Account" --> <strong>Get Started</strong> (don't worry, you won't be actually deleting your account). 
+                    Under "Download Request (optional)," click <strong>Request Your Archive</strong>. After this, you can exit the page. You'll receive an email from which you can download your data.
+                    <br><br>
+                    For more information, see <a href="https://support.strava.com/hc/en-us/articles/216918437-Exporting-your-Data-and-Bulk-Export#h_01GG58HC4F1BGQ9PQZZVANN6WF" target="_blank">this Strava article</a> (instructions above match "Bulk Export" section).
+                </p>
+            </div>
+        </div>
+        <div class="faq">
+            <div class="question">
+                <span>I don't have any Strava data to track :(</span>
+
+                <svg width="15" height="10" viewBox="0 0 42 25">
+                    <path d="M3 3L21 21L39 3" stroke="white" stroke-width="7" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <div class="answer">
+                <p>
+                    If you still want to test the website out, you use my data by clicking "Example" on the homepage. 
+                    <br><br>
+                </p>
+                <img src="/static/strava-example-data.png" style="width: 400px; margin-bottom: 30px;">
+            </div>
+        </div>
+        
+    </div>
+<script>
+const faqs = document.querySelectorAll('.faq');
+
+faqs.forEach(faq => {
+    faq.addEventListener('click', () => {
+        faq.classList.toggle('active');
+    });
+});
+</script>
+</body>
+</html>
