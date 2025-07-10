@@ -89,11 +89,13 @@ def clean_data(df, month_arr):
     df_runs['Elevation Gain'] = df_runs['Elevation Gain'] * 3.28 # m -> ft
     df_dates = df_runs.copy()
 
+    # NOTE: change starting/ending value depending on earliest/latest activity
     df_dates['Year'] = df_dates['Date'].apply(
         lambda x: 2021 if '2021' in x else
             2022 if '2022' in x else
             2023 if '2023' in x else
-            2024 if '2024' in x else None
+            2024 if '2024' in x else 
+            2025 if '2025' in x else None
     )
 
     def find_month(x):

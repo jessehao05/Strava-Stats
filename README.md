@@ -28,15 +28,9 @@ Graphs:
 To-Do:
 
 - README
-- Update Instructions (note: my activities start in 2021)
 - Metric version
-- Formatting (Headers, horizontal lines?)
-- Rounding in summary tables
 - Possibly look at splitting by year + grouping by month
-- (Python)
-
 - instruction line (How to use: upload your Strava data .csv file)
 - add FAQ redirect with dropdown menu (includes: Don't have enough data from my own Strava but want to see how the website works?, Unsure how to download your Strava data?, [forgot something here])
-- graph styling: labels, pie chart
-- rewrite with functions
 - handle submitting the right type of .csv file (checking for right columns?)
+- handling submissions for only strava files, not any other .csv file
