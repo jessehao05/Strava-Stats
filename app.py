@@ -8,7 +8,6 @@ UPLOAD_FOLDER = 'uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 month_arr = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
-
 @app.route('/')
 def upload_page():
     return render_template('index.html')
@@ -21,28 +20,12 @@ def FAQ_page():
 def process_file():
 
     action = request.form.get('action')
+    success, result = verify_file(action, request)
 
-    if action == 'default':
-        filepath = 'static/example.csv'
-        print('default form')
-    elif action == 'upload': 
-        print('upload path')
-        # verify_file(request)
-        if 'file' not in request.files:
-            return 'No file part'
-
-        file = request.files['file']
-        if file.filename == '':
-            return 'No selected file'
-
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename) # q: must i save this? or can i just use the file?
-        file.save(filepath)
-    else:
-        return 'Something went wrong.'
+    if not success: 
+        return result
     
-    print(filepath)
-
-    df = pd.read_csv(filepath)
+    df = result
 
     # 1. cleaning
     df_clean = clean_data(df, month_arr)
@@ -71,9 +54,6 @@ def process_file():
     dist_pie = generate_pie(df_clean)
     dist_pie_html = dist_pie.to_html(full_html = False)
 
-    # end: delete file from local
-    os.remove(filepath)
-
     # send data to jinja2/flask
     return render_template('results.html', 
                            total_summary = total_summary_html, 
@@ -82,6 +62,38 @@ def process_file():
                            pace_distrib = pace_hist_html,
                            month_distrib = month_hist_html,
                            pie = dist_pie_html)
+
+def verify_file(action, request):
+    if action == 'default':
+        filepath = 'static/example.csv'
+        df = pd.read_csv('static/example.csv')
+        return True, df
+
+    elif action == 'upload': 
+        if 'file' not in request.files:
+            return False, render_template('index.html', error = 'No file part in request')
+
+        file = request.files['file']
+        if file.filename == '':
+            return False, render_template('index.html', error = 'No selected file')
+
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename) # q: must i save this? or can i just use the file?
+        file.save(filepath)
+
+        df = pd.read_csv(filepath)
+        os.remove(filepath)
+
+        REQUIRED_COLS = {'Activity Date','Activity Name','Activity Type','Activity Description',
+                  'Elapsed Time','Moving Time','Distance','Elevation Gain','Elevation Loss'}
+        if not REQUIRED_COLS.issubset(df.columns):
+            print('i was here')
+            return False, render_template('index.html', error = 'Not a file from Strava - try again')
+        
+        print(' was here 2')
+        return True, df
+        
+    else:
+        return False, render_template('index.html', error = 'Something went wrong - try again')
 
 def clean_data(df, month_arr):
     df_runs = df[['Activity Date','Activity Name','Activity Type','Activity Description',

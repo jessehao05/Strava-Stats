@@ -15,7 +15,13 @@
 
         <form action="/process" method="POST" enctype="multipart/form-data">
             <input type="file" id="fileUpload" name="file" accept=".csv" required>
-            <label id="file-upload" for="fileUpload">Upload .csv File<div id="file-name">No file selected</div></label>
+            <label id="file-upload" for="fileUpload">
+                Upload .csv File
+                <div id="file-name">No file selected</div>
+                {% if error %}
+                    <div class="error-message" style="color: rgb(228, 67, 64); margin-top: 1rem; font-size: 1rem;">{{ error }}</div>
+                {% endif %}
+            </label>
 
             <input type="submit" id="submit" value="upload" name="action">
             <label for="submit" class="submit-button">Submit</label>
@@ -28,11 +34,6 @@
         <div class="bottom-container">
             <div class="FAQ-link"><a href="{{ url_for('FAQ_page') }}">FAQ</a></div>
         </div>
-
-        
-
-        
-    
     </div>
 
     
