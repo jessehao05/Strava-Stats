@@ -2,10 +2,11 @@ from flask import Flask, request, render_template, redirect, url_for
 import pandas as pd
 import plotly.express as px
 import os
+from werkzeug.utils import secure_filename
+import tempfile
 
 app = Flask(__name__)
-UPLOAD_FOLDER = 'uploads'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024 
 month_arr = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
 @app.route('/')
@@ -76,12 +77,22 @@ def verify_file(action, request):
         file = request.files['file']
         if file.filename == '':
             return False, render_template('index.html', error = 'No selected file')
+        
+        if not file.filename.endswith('csv'):
+            return False, render_template('index.html', error = 'Only .csv files allowed')
+        
+        try:
+            with tempfile.NamedTemporaryFile(delete=False, suffix='.csv') as tmp:
+                file.save(tmp.name)
+                tmp_path = tmp.name
 
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename) # q: must i save this? or can i just use the file?
-        file.save(filepath)
+            df = pd.read_csv(tmp_path)
 
-        df = pd.read_csv(filepath)
-        os.remove(filepath)
+        except Exception as e:
+            return False, render_template('index.html', error = 'Error processing file')  
+
+        finally:
+            os.remove(tmp_path)  
 
         REQUIRED_COLS = {'Activity Date','Activity Name','Activity Type','Activity Description',
                   'Elapsed Time','Moving Time','Distance','Elevation Gain','Elevation Loss'}
