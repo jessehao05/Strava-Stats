@@ -223,5 +223,4 @@ def generate_pie(df):
     return dist_pie
 
 if __name__ == '__main__':
-    os.makedirs(UPLOAD_FOLDER, exist_ok = True)
     app.run(debug = True)
