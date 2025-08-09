@@ -2,7 +2,6 @@ from flask import Flask, request, render_template, redirect, url_for
 import pandas as pd
 import plotly.express as px
 import os
-from werkzeug.utils import secure_filename
 import tempfile
 
 app = Flask(__name__)
@@ -87,10 +86,8 @@ def verify_file(action, request):
                 tmp_path = tmp.name
 
             df = pd.read_csv(tmp_path)
-
         except Exception as e:
             return False, render_template('index.html', error = 'Error processing file')  
-
         finally:
             os.remove(tmp_path)  
 
